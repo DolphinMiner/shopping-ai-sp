@@ -1,0 +1,13 @@
+com/shopping/service/CartService.class
+com/shopping/service/UserService.class
+com/shopping/config/RedisConfig.class
+com/shopping/entity/Product.class
+com/shopping/mapper/ProductMapper.class
+com/shopping/service/OrderService.class
+com/shopping/ShoppingApplication.class
+com/shopping/service/ProductService.class
+com/shopping/mapper/UserMapper.class
+com/shopping/mapper/OrderMapper.class
+com/shopping/controller/ShoppingController.class
+com/shopping/entity/User.class
+com/shopping/entity/Order.class

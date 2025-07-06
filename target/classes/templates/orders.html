@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的订单</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        
+        .nav {
+            background-color: #4CAF50;
+            padding: 0.5rem 0;
+            text-align: center;
+        }
+        
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav a:hover {
+            background-color: #45a049;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .order-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-id {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .order-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-shipped {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        
+        .order-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .order-info {
+            flex: 1;
+        }
+        
+        .order-product {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .order-quantity {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .order-time {
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        .order-price {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #219a52;
+        }
+        
+        .empty-orders {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .empty-orders h3 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>我的订单</h1>
+    </div>
+    
+    <div class="nav">
+        <a href="/">首页</a>
+        <a href="/login">登录</a>
+        <a href="#" onclick="viewCart()">购物车</a>
+        <a href="#" onclick="viewOrders()">我的订单</a>
+    </div>
+    
+    <div class="container" th:data-user-id="${userId}">
+        <h2>订单列表</h2>
+        
+        <div th:if="${orders == null or orders.isEmpty()}" class="empty-orders">
+            <h3>暂无订单</h3>
+            <p>去首页看看有什么好商品吧！</p>
+            <a href="/" class="btn btn-primary">去购物</a>
+        </div>
+        
+        <div th:unless="${orders == null or orders.isEmpty()}">
+            <div th:each="order : ${orders}" class="order-item">
+                <div class="order-header">
+                    <div class="order-id">订单号: <span th:text="${order.id}"></span></div>
+                    <div class="order-status" th:classappend="${order.status == 'PENDING' ? 'status-pending' : (order.status == 'PAID' ? 'status-paid' : 'status-shipped')}">
+                        <span th:text="${order.status == 'PENDING' ? '待支付' : (order.status == 'PAID' ? '已支付' : '已发货')}"></span>
+                    </div>
+                </div>
+                
+                <div class="order-content">
+                    <div class="order-info">
+                        <div class="order-product">商品ID: <span th:text="${order.productId}"></span></div>
+                        <div class="order-quantity">数量: <span th:text="${order.quantity}"></span></div>
+                        <div class="order-time">下单时间: <span th:text="${#temporals.format(order.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span></div>
+                    </div>
+                    
+                    <div class="order-price">
+                        ¥<span th:text="${order.totalPrice}"></span>
+                    </div>
+                </div>
+                
+                <div class="order-actions">
+                    <button th:if="${order.status == 'PENDING'}" class="btn btn-success" th:data-order-id="${order.id}" onclick="payOrder(this.dataset.orderId)">立即支付</button>
+                    <button class="btn btn-primary" th:data-order-id="${order.id}" onclick="viewOrderDetail(this.dataset.orderId)">查看详情</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const container = document.querySelector('.container');
+        const userId = parseInt(container.dataset.userId);
+        
+        function payOrder(orderId) {
+            if (confirm('确认支付此订单吗？')) {
+                fetch('/order/pay', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `orderId=${orderId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('支付成功！');
+                        location.reload();
+                    } else {
+                        alert('支付失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('支付失败');
+                });
+            }
+        }
+        
+        function viewOrderDetail(orderId) {
+            window.location.href = `/order/detail/${orderId}`;
+        }
+        
+        function viewCart() {
+            window.location.href = `/cart/${userId}`;
+        }
+        
+        function viewOrders() {
+            window.location.href = `/orders/${userId}`;
+        }
+    </script>
+</body>
+</html> 

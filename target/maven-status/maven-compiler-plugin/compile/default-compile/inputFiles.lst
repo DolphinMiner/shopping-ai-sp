@@ -1,0 +1,13 @@
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/service/OrderService.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/service/CartService.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/mapper/UserMapper.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/controller/ShoppingController.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/service/UserService.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/service/ProductService.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/entity/Product.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/config/RedisConfig.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/entity/Order.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/entity/User.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/mapper/OrderMapper.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/mapper/ProductMapper.java
+/Users/whc/Desktop/test/shopping-ai-sp/src/main/java/com/shopping/ShoppingApplication.java

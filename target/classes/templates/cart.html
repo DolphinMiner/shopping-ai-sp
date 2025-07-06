@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>购物车</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        
+        .nav {
+            background-color: #4CAF50;
+            padding: 0.5rem 0;
+            text-align: center;
+        }
+        
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav a:hover {
+            background-color: #45a049;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .cart-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+        }
+        
+        .cart-item-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .cart-item-price {
+            color: #e74c3c;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        .cart-item-quantity {
+            margin: 10px 0;
+        }
+        
+        .cart-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .cart-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .total-price {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>购物车</h1>
+    </div>
+    
+    <div class="nav">
+        <a href="/">首页</a>
+        <a href="/login">登录</a>
+        <a href="#" onclick="viewCart()">购物车</a>
+        <a href="#" onclick="viewOrders()">我的订单</a>
+    </div>
+    
+    <div class="container" th:data-user-id="${userId}">
+        <h2>我的购物车</h2>
+        
+        <div th:if="${cartDetails == null or cartDetails.isEmpty()}" class="empty-cart">
+            <h3>购物车为空</h3>
+            <p>去首页看看有什么好商品吧！</p>
+            <a href="/" class="btn btn-primary">返回首页</a>
+        </div>
+        
+        <div th:unless="${cartDetails == null or cartDetails.isEmpty()}">
+            <div th:each="entry : ${cartDetails}" class="cart-item">
+                <img th:src="${entry.value.product.imageUrl}" th:alt="${entry.value.product.name}">
+                <div class="cart-item-info">
+                    <div class="cart-item-name" th:text="${entry.value.product.name}"></div>
+                    <div class="cart-item-price">¥<span th:text="${entry.value.product.price}"></span></div>
+                    <div class="cart-item-quantity">
+                        数量: <span th:text="${entry.value.quantity}"></span>
+                    </div>
+                </div>
+                <div class="cart-item-actions">
+                    <button class="btn btn-danger" th:data-product-id="${entry.key}" onclick="removeFromCart(this.dataset.productId)">移除</button>
+                    <button class="btn btn-primary" th:data-product-id="${entry.key}" onclick="buyNow(this.dataset.productId)">立即购买</button>
+                </div>
+            </div>
+            
+            <div class="cart-summary">
+                <div class="total-price">
+                    共 <span th:text="${cartDetails.size()}"></span> 件商品
+                </div>
+                <div style="text-align: right; margin-top: 10px;">
+                    <button class="btn btn-primary" onclick="clearCart()">清空购物车</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const container = document.querySelector('.container');
+        const userId = parseInt(container.dataset.userId);
+        
+        function removeFromCart(productId) {
+            fetch('/cart/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `userId=${userId}&productId=${productId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('移除失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('移除失败');
+            });
+        }
+        
+        function buyNow(productId) {
+            window.location.href = `/order/${userId}/${productId}`;
+        }
+        
+        function clearCart() {
+            if (confirm('确定要清空购物车吗？')) {
+                // 这里可以添加清空购物车的功能
+                alert('清空购物车功能待实现');
+            }
+        }
+        
+        function viewCart() {
+            window.location.href = `/cart/${userId}`;
+        }
+        
+        function viewOrders() {
+            window.location.href = `/orders/${userId}`;
+        }
+    </script>
+</body>
+</html> 
